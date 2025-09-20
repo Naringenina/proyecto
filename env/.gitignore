@@ -1,0 +1,24 @@
+# created by virtualenv automatically
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+*.sqlite3
+*.db
+.pytest_cache/
+.coverage
+htmlcov/
+
+.env
+.env.*
+*.env
+
+.vscode/
+.idea/
+*.code-workspace
+
+Thumbs.db
+ehthumbs.db
+.DS_Store
