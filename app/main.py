@@ -12,14 +12,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.mount("/media", StaticFiles(directory=BASE_DIR / "media"), name="media")
 
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 @app.get("/health")
-def health():
+async def health():
     return {"status": "ok"}
 
 @app.get("/")
-def home(request: Request):
+async def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
-#Hoa+'gfoa¿ugp98ayhd´0ghiasdñoighapdhgaa
