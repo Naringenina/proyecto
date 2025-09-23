@@ -21,3 +21,5 @@ def health():
 @app.get("/")
 def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
+
+#Hoa+'gfoa¿ugp98ayhd´0ghiasdñoighapdhgaa
