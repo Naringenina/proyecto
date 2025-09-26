@@ -1,13 +1,26 @@
-from sqlmodel import create_engine, Session, SQLModel
-import os
+import pytest
+from fastapi.testclient import TestClient
+from sqlmodel import SQLModel, create_engine, Session
+from app.main import app
+from app.db import get_session as app_get_session  # <- OJO: la función real a override
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./cards.db")
-engine = create_engine(DATABASE_URL, echo=False)
-
-def init_db():
-    from app.models import inventory 
+@pytest.fixture
+def engine():
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False})
     SQLModel.metadata.create_all(engine)
+    return engine
 
-def get_session():
-    with Session(engine) as session:
+@pytest.fixture
+def session(engine):
+    with Session(engine) as s:
+        yield s
+
+@pytest.fixture
+def client(session):
+    def override_get_session():
         yield session
+
+    app.dependency_overrides[app_get_session] = override_get_session
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
