@@ -93,11 +93,11 @@ Index(
 class Tag(SQLModel, table=True):
     __tablename__ = "tag"
     __table_args__ = (
-        UniqueConstraint("name", name="uq_tag_nombre"),
+        UniqueConstraint("name", name="uq_tag_name"),
     )
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str = Field(index=True)
+    name: str = Field(index=True)
 
     items: List[InventoryItem] = Relationship(back_populates="tags", link_model=ItemTag)
 

@@ -1,26 +1,31 @@
-import pytest
-from fastapi.testclient import TestClient
-from sqlmodel import SQLModel, create_engine, Session
-from app.main import app
-from app.db import get_session as app_get_session  # <- OJO: la función real a override
+import os
+from pathlib import Path
+from typing import Generator
 
-@pytest.fixture
-def engine():
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False})
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+from sqlmodel import SQLModel, Session, create_engine
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    DB_FILE = PROJECT_ROOT / "cards.db"
+    DATABASE_URL = f"sqlite:///{DB_FILE}"
+
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, _):
+    if DATABASE_URL.startswith("sqlite"):
+        cur = dbapi_connection.cursor()
+        cur.execute("PRAGMA foreign_keys=ON")
+        cur.close()
+
+def init_db() -> None:
+    from app.models import inventory
     SQLModel.metadata.create_all(engine)
-    return engine
 
-@pytest.fixture
-def session(engine):
-    with Session(engine) as s:
-        yield s
-
-@pytest.fixture
-def client(session):
-    def override_get_session():
+def get_session() -> Generator[Session, None, None]:
+    with Session(engine) as session:
         yield session
-
-    app.dependency_overrides[app_get_session] = override_get_session
-    with TestClient(app) as c:
-        yield c
-    app.dependency_overrides.clear()
