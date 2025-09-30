@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Optional, List
 from enum import Enum
 from sqlmodel import SQLModel, Field, Relationship
@@ -81,7 +80,7 @@ class InventoryItem(SQLModel, table=True):
     notes: Optional[str] = None
     image_path: Optional[str] = None
 
-    tags: List["Tag"] = Relationship(back_populates="items", link_model=ItemTag)
+    tags: list["Tag"] = Relationship(back_populates="items", link_model=ItemTag)
 Index(
     "ix_item_search",
     func.lower(InventoryItem.__table__.c.name),
@@ -99,5 +98,5 @@ class Tag(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True)
 
-    items: List[InventoryItem] = Relationship(back_populates="tags", link_model=ItemTag)
+    items: list["InventoryItem"] = Relationship(back_populates="tags", link_model=ItemTag)
 

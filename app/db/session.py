@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from typing import Generator
-
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel, Session, create_engine
