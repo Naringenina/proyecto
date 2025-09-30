@@ -99,4 +99,3 @@ class Tag(SQLModel, table=True):
     name: str = Field(index=True)
 
     items: list["InventoryItem"] = Relationship(back_populates="tags", link_model=ItemTag)
-

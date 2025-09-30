@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-
+from app.routers.pages import router as pages_router
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -23,6 +23,8 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static", check_dir=False)
 app.mount("/media", StaticFiles(directory=BASE_DIR / "media", check_dir=False), name="media")
 
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
+
+app.include_router(pages_router)
 
 @app.get("/health")
 async def health():
