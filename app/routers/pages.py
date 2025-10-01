@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 
 from app.db.session import get_session
 from app.models.inventory import InventoryItem
+from app.models.inventory import Rarity, Condition, Language, ComercialCondition
 
 TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -81,7 +82,18 @@ def items_page(
 
 @router.get("/items/new", response_class=HTMLResponse)
 def new_item_page(request: Request):
-    return templates.TemplateResponse("items/new.html", {"request": request})
+    return templates.TemplateResponse(
+        "items/new.html",
+        {
+            "request": request,
+            "errors": [],
+            "form": {},
+            "rarities": list(Rarity),
+            "conditions": list(Condition),
+            "languages": list(Language),
+            "comercial_conditions": list(ComercialCondition),
+        },
+    )
 
 
 @router.get("/tags", response_class=HTMLResponse)

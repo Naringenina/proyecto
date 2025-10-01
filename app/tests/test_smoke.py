@@ -1,4 +1,3 @@
-# tests/test_smoke.py
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, create_engine, Session
