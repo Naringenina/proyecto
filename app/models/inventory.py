@@ -5,7 +5,6 @@ from sqlalchemy.sql import func
 from sqlalchemy import Column, Enum as SAEnum, UniqueConstraint, Index
 
 
-"""Classes to define the data and the structure of the cards we're going to add to the database"""
 class Rarity(str, Enum):
     COMMON = "Common"
     UNCOMMON = "Uncommon"
@@ -37,26 +36,18 @@ class Language(str, Enum):
 
 
 class ComercialCondition(str, Enum):
-    COLLECTION = "En colección"
-    TRADE = "To trade"
-    SELL = "To sell"
+    COLLECTION = "Collection"
+    TRADE = "Trade"
+    SELL = "Sell"
     RESERVED = "Reserved"
 
-"""Primary Key to combine two columns to avoid deuplicade card in databases"""
 class ItemTag(SQLModel, table=True):
     item_id: Optional[int] = Field(default=None, foreign_key="inventoryitem.id", primary_key=True)
     tag_id: Optional[int] = Field(default=None, foreign_key="tag.id", primary_key=True)
 
-
-"""It garants every variant its unique, if any are not, it will be declined"""
 class InventoryItem(SQLModel, table=True):
     __tablename__ = "inventoryitem"
-    __table_args__ = (
-        UniqueConstraint(
-            "game", "set_code", "set_name", "number_set", "language", "condition", "variant",
-            name="uq_item_variant"
-        ),
-    )
+    __table_args__ = ()
 
     id: Optional[int] = Field(default=None, primary_key=True)
 
@@ -82,13 +73,17 @@ class InventoryItem(SQLModel, table=True):
 
     tags: list["Tag"] = Relationship(back_populates="items", link_model=ItemTag)
 Index(
-    "ix_item_search",
-    func.lower(InventoryItem.__table__.c.name),
-    InventoryItem.__table__.c.set_name,
-    InventoryItem.__table__.c.game,
+    "uq_item_variant_ci", 
+    func.lower(InventoryItem.__table__.c.game),
+    func.lower(func.coalesce(InventoryItem.__table__.c.set_code, "")),
+    func.lower(InventoryItem.__table__.c.set_name),
+    InventoryItem.__table__.c.number_set,
+    InventoryItem.__table__.c.language,
+    InventoryItem.__table__.c.condition,
+    func.lower(func.coalesce(InventoryItem.__table__.c.variant, "")),
+    unique=True,
 )
 
-"""It's decline two equal names and makes a relation between items and InventoryItem through Itemtag"""
 class Tag(SQLModel, table=True):
     __tablename__ = "tag"
     __table_args__ = (

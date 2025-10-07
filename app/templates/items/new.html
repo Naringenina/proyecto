@@ -11,8 +11,8 @@
     </ul>
     {% if existing %}
       <div class="mt-2 text-sm">
-        Posible duplicado: <strong>{{ existing.name }}</strong> — {{ existing.game }} / {{ existing.set_name }} #{{ existing.number_set }}
-        ({{ existing.language.value }}, {{ existing.condition.value }}, variante: {{ existing.variant or '—' }})
+        Possible duplicated: <strong>{{ existing.name }}</strong> — {{ existing.game }} / {{ existing.set_name }} #{{ existing.number_set }}
+        ({{ existing.language.value }}, {{ existing.condition.value }}, variant: {{ existing.variant or '—' }})
       </div>
     {% endif %}
   </div>

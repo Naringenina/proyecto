@@ -8,8 +8,9 @@ from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
 from app.db.session import get_session
-from app.models.inventory import InventoryItem
-from app.models.inventory import Rarity, Condition, Language, ComercialCondition
+from app.models.inventory import (
+    InventoryItem, Rarity, Condition, Language, ComercialCondition
+)
 
 TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -79,7 +80,6 @@ def items_page(
         },
     )
 
-
 @router.get("/items/new", response_class=HTMLResponse)
 def new_item_page(request: Request):
     return templates.TemplateResponse(
@@ -88,6 +88,58 @@ def new_item_page(request: Request):
             "request": request,
             "errors": [],
             "form": {},
+            "rarities": list(Rarity),
+            "conditions": list(Condition),
+            "languages": list(Language),
+            "comercial_conditions": list(ComercialCondition),
+        },
+    )
+
+@router.get("/items/{item_id}", response_class=HTMLResponse)
+def item_detail_page(
+    request: Request,
+    item_id: int,
+    session: Session = Depends(get_session),
+):
+    item = session.get(InventoryItem, item_id)
+    if not item:
+        return templates.TemplateResponse(
+            "items/detail.html",
+            {"request": request, "item": None},
+            status_code=404,
+        )
+    return templates.TemplateResponse(
+        "items/detail.html",
+        {"request": request, "item": item},
+    )
+
+@router.get("/items/{item_id}/edit", response_class=HTMLResponse)
+def edit_item_page(
+    request: Request,
+    item_id: int,
+    session: Session = Depends(get_session),
+):
+    item = session.get(InventoryItem, item_id)
+    if not item:
+        return templates.TemplateResponse(
+            "items/edit.html",
+            {
+                "request": request,
+                "item": None,
+                "errors": ["The item didn't exits."],
+                "rarities": list(Rarity),
+                "conditions": list(Condition),
+                "languages": list(Language),
+                "comercial_conditions": list(ComercialCondition),
+            },
+            status_code=404,
+        )
+    return templates.TemplateResponse(
+        "items/edit.html",
+        {
+            "request": request,
+            "item": item,
+            "errors": [],
             "rarities": list(Rarity),
             "conditions": list(Condition),
             "languages": list(Language),
